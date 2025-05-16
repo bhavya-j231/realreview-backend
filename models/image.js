@@ -1,20 +1,3 @@
-/*module.exports = (sequelize, DataTypes) => {
-  const Image = sequelize.define('Image', {
-    filePath: DataTypes.STRING,
-    location: DataTypes.STRING,
-    timestamp: DataTypes.DATE,
-    status: DataTypes.STRING, // pending, approved, archived
-    userId: DataTypes.INTEGER
-  }, {});
-  
-  Image.associate = function(models) {
-    Image.belongsTo(models.User, { foreignKey: 'userId' });
-    Image.hasMany(models.Rating, { foreignKey: 'imageId' });
-  };
-
-  return Image;
-};*/
-
 module.exports = (sequelize, DataTypes) => {
   const Image = sequelize.define('Image', {
     filePath: {
@@ -60,16 +43,22 @@ module.exports = (sequelize, DataTypes) => {
     archiveDate: {
       type: DataTypes.DATE,
       allowNull: true
+    },
+    locationValidated: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   }, {
     hooks: {
       beforeCreate: async (image) => {
-        // Set archive date to 30 days from now
-        image.archiveDate = new Date(Date.now() + (30 * 24 * 60 * 60 * 1000));
+        // Set archive date to 30 days from now, if not already set
+        if (!image.archiveDate) {
+          image.archiveDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+        }
       }
     }
   });
-  
+
   Image.associate = function(models) {
     Image.belongsTo(models.User, { foreignKey: 'userId' });
     Image.hasMany(models.Rating, { foreignKey: 'imageId' });
@@ -77,4 +66,3 @@ module.exports = (sequelize, DataTypes) => {
 
   return Image;
 };
-

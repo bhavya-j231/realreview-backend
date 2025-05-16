@@ -1,3 +1,6 @@
+// newly added
+const auth = require('../middleware/auth');
+
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -78,6 +81,7 @@ router.post('/upload-image', upload.single('image'), async (req, res) => {
 });
 
 // Get image with metadata and ratings
+/* 
 router.get('/image/:id', async (req, res) => {
   try {
     const image = await Image.findOne({
@@ -109,6 +113,7 @@ router.get('/image/:id', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch image' });
   }
 });
+*/
 
 // Rate an image
 router.post('/image/:id/rate', async (req, res) => {
@@ -157,6 +162,7 @@ router.post('/image/:id/rate', async (req, res) => {
 });
 
 // Get all approved images
+/*
 router.get('/images', async (req, res) => {
   try {
     const images = await Image.findAll({
@@ -174,6 +180,34 @@ router.get('/images', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch images' });
   }
 });
+*/
+// test
+router.get('/image/:id', async (req, res) => {
+  try {
+    const image = await Image.findOne({
+      where: { 
+        id: req.params.id,
+        status: 'approved'
+      },
+      include: [
+        { 
+          model: User,
+          attributes: ['name', 'email']
+        }
+      ]
+    });
+
+    if (!image) {
+      return res.status(404).json({ error: 'Image not found or not approved' });
+    }
+
+    res.json(image);
+  } catch (err) {
+    console.error('Error fetching image:', err);  // Log full error
+    res.status(500).json({ error: 'Failed to fetch image hh' });
+  }
+});
+
 
 // PUT /images/archive-old
 router.put('/images/archive-old', async (req, res) => {
@@ -189,5 +223,72 @@ router.put('/images/archive-old', async (req, res) => {
     res.status(500).json({ error: 'Archiving failed' });
   }
 });
+
+
+// newly added 
+
+// PATCH /image/:id/approve - Approve an image (admin only)
+/*
+router.patch('/image/:id/approve', async (req, res) => {
+  try {
+    // Assuming you have req.user set after authentication middleware
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Check if user is admin
+    const user = await User.findByPk(userId);
+    if (!user || !user.isAdmin) {
+      return res.status(403).json({ error: 'Access denied: Admins only' });
+    }
+
+    // Find the image
+    const image = await Image.findByPk(req.params.id);
+    if (!image) {
+      return res.status(404).json({ error: 'Image not found' });
+    }
+
+    // Approve image
+    image.status = 'approved';
+    await image.save();
+
+    res.json({ message: 'Image approved', image });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to approve image' });
+  }
+});
+*/
+
+// new patch
+// PATCH /image/:id/approve - Approve an image (admin only)
+router.patch('/image/:id/approve', auth, async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    const user = await User.findByPk(userId);
+    if (!user || !user.isAdmin) {
+      return res.status(403).json({ error: 'Access denied: Admins only' });
+    }
+
+    const image = await Image.findByPk(req.params.id);
+    if (!image) {
+      return res.status(404).json({ error: 'Image not found' });
+    }
+
+    image.status = 'approved';
+    await image.save();
+
+    res.json({ message: 'Image approved', image });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to approve image' });
+  }
+});
+
 
 module.exports = router;
