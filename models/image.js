@@ -1,3 +1,6 @@
+// models/image.js
+
+
 module.exports = (sequelize, DataTypes) => {
   const Image = sequelize.define('Image', {
     filePath: {

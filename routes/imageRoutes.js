@@ -1,3 +1,5 @@
+// /routes/imageRoutes.js
+
 // newly added
 const auth = require('../middleware/auth');
 

@@ -1,3 +1,5 @@
+// /migrations/20250513193726-create-image.js
+
 'use strict';
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
