@@ -1,1 +1,7 @@
-"uploads/" 
+node_modules/ 
+.env 
+.vscode/ 
+.DS_Store 
+dist/ 
+lib/ 
+uploads/ 
